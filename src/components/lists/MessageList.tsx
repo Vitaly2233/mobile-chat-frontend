@@ -1,42 +1,22 @@
-import {observer} from 'mobx-react-lite';
-import React, {useEffect, useRef} from 'react';
+import React, {useRef} from 'react';
 import {FlatList, SafeAreaView, StyleSheet} from 'react-native';
 import {IMessage} from '../../models/Message';
-import {useStore} from '../../store';
 import MessageListItem from './MessageListItem';
+import {User} from '../../models/User';
 
 interface Props {
-  userId: number;
+  messages: any[];
+  user?: User;
 }
 
-let interval;
-export const MessageList = ({userId}: Props) => {
-  const {chatStore, userStore} = useStore();
+export const MessageList = ({messages, user}: Props) => {
   const flatListRef = useRef<FlatList>();
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const init = async () => {
-    await chatStore.setUserMessages(userId);
-
-    if (!interval)
-      interval = setInterval(async () => {
-        await chatStore.checkNewMessages();
-      }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  };
 
   const renderMessages = (data: any) => {
     const message = data.item as IMessage;
 
     const itemProps: any = {isLast: message.isLast};
-    if (userStore.user && message.from.id === userStore.user.id)
-      itemProps.isFromMyself = true;
+    if (user && message.from.id === user.id) itemProps.isFromMyself = true;
 
     return <MessageListItem message={message} {...itemProps} />;
   };
@@ -47,7 +27,7 @@ export const MessageList = ({userId}: Props) => {
         onContentSizeChange={() => flatListRef?.current?.scrollToEnd()}
         ref={flatListRef}
         scrollEnabled={true}
-        data={chatStore.messages}
+        data={messages}
         renderItem={renderMessages}
         showsVerticalScrollIndicator={false}
       />
@@ -59,4 +39,4 @@ const styles = StyleSheet.create({
   container: {flex: 1},
 });
 
-export default observer(MessageList);
+export default MessageList;

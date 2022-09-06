@@ -45,13 +45,6 @@ class ChatStore {
     this.setMessages([...this.messages, message]);
     await api.post('messages', {...message, from: from.id, to: to.id});
   };
-
-  @action checkNewMessages = async () => {
-    const res = await api.get(`messages/stream_new_messages`);
-    if (res.status >= 400) throw new Error('invalid status code');
-
-    if (res.data) this.setMessages([...this.messages, ...res.data]);
-  };
 }
 
 export default new ChatStore();

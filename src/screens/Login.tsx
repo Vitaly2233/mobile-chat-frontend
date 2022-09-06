@@ -24,7 +24,7 @@ const Login = ({route, navigation}: Props) => {
   const submit = async (data: LoginData) => {
     try {
       const token = await userStore.login(data);
-      AsyncStorage.setItem('access_token', token);
+      await AsyncStorage.setItem('access_token', token);
       userStore.setToken(token);
       await userStore.setMe();
     } catch (e) {

@@ -23,7 +23,7 @@ class UserStore {
     this.user = undefined;
   };
 
-  @action setToken = (token: string) => {
+  @action setToken = async (token: string) => {
     api.defaults.headers.common.Authorization = `Bearer ${token}`;
   };
 
