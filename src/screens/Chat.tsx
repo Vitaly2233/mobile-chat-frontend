@@ -41,15 +41,16 @@ const Chat = ({route, navigation}: Props) => {
       console.log('disconnected');
     });
 
-    socket.current.on('new-message', data => {
+    socket.current.on('new-message', (data: any) => {
       chatStore.setMessages([...chatStore.messages, data]);
     });
   };
 
+  //TODO message input to === user. FIX
   return (
     <View style={styles.container}>
       <MessageList messages={chatStore.messages} user={userStore.user} />
-      <MessageInput user={route.params} />
+      <MessageInput to={id} user={route.params} />
     </View>
   );
 };

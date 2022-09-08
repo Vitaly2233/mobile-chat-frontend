@@ -3,12 +3,11 @@ import React, {useState} from 'react';
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {User} from '../models/User';
 import {useStore} from '../store';
 import {Themes} from '../themes';
@@ -17,18 +16,15 @@ import SendMessage from './SendMessage';
 
 interface Props {
   user: User;
+
+  to: number;
 }
 
-const MessageInput = ({user}: Props) => {
+const MessageInput = ({user, to}: Props) => {
+  console.log(user.id, to);
+
   const {chatStore, userStore} = useStore();
   const [inputText, setInputText] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(
-    'content://com.android.providers.media.documents/document/image%3A31',
-  );
-  console.log(
-    '🚀 ~ file: MessageInput.tsx ~ line 28 ~ MessageInput ~ imageUri',
-    imageUri,
-  );
 
   const handleMessageInput = (text: string) => {
     setInputText(text);
@@ -41,17 +37,20 @@ const MessageInput = ({user}: Props) => {
     }
   };
 
-  const handlePickFileCLick = () => {
-    // launchCamera({mediaType: 'video', videoQuality: 'high'}, response => {
-    //   console.log(response);
-
-    // });
-    launchImageLibrary({mediaType: 'mixed'}, res => {
+  const handlePickFileCLick = async () => {
+    await launchImageLibrary({mediaType: 'mixed'}, async res => {
       if (res.assets) {
         const asset = res.assets[0];
-        if (asset.uri) setImageUri(asset.uri);
+        if (asset.uri) {
+          await handleImageUpload(asset);
+        }
       }
     });
+  };
+
+  const handleImageUpload = async ({fileName, type, uri}: Asset) => {
+    if (fileName && type && uri)
+      await chatStore.sendFile({fileName, type, uri}, user.id, to);
   };
 
   return (
@@ -59,9 +58,6 @@ const MessageInput = ({user}: Props) => {
       <TouchableOpacity style={styles.plus} onPress={handlePickFileCLick}>
         <Plus />
       </TouchableOpacity>
-      {imageUri ? (
-        <Image style={{height: 200, width: 200}} source={{uri: imageUri}} />
-      ) : null}
       <View style={{...styles.input}}>
         <TextInput
           value={inputText}

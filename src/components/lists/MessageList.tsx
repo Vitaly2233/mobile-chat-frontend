@@ -25,6 +25,7 @@ export const MessageList = ({messages, user}: Props) => {
     <SafeAreaView style={styles.container}>
       <FlatList
         onContentSizeChange={() => flatListRef?.current?.scrollToEnd()}
+        //@ts-ignore
         ref={flatListRef}
         scrollEnabled={true}
         data={messages}

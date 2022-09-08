@@ -1,6 +1,6 @@
 import {action, makeAutoObservable, observable} from 'mobx';
 import {IChat} from '../models/chat';
-import {IDraftMessage} from '../models/DraftMessage';
+import {FormDataFile} from '../models/FormDataFile';
 import {IMessage} from '../models/Message';
 import {User} from '../models/User';
 import {api} from '../utils/Api';
@@ -39,11 +39,38 @@ class ChatStore {
   };
 
   @action sendMessage = async (to: User, from: User, text: string) => {
+    //TODO to is sending to myself. Fix types in typescript
     if (!text.length) return;
 
     const message: IMessage = {from, to, text};
     this.setMessages([...this.messages, message]);
     await api.post('messages', {...message, from: from.id, to: to.id});
+  };
+
+  @action sendFile = async (
+    {fileName, type, uri}: FormDataFile,
+    from: number,
+    to: number,
+  ) => {
+    const formData = new FormData();
+
+    formData.append('file', {
+      name: fileName,
+      type,
+      uri,
+    });
+
+    formData.append('from', from);
+
+    formData.append('to', to);
+
+    const res = await api.post('messages/file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (res.status >= 400) throw new Error('invalid status code');
   };
 }
 
