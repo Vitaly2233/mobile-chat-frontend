@@ -39,12 +39,9 @@ class ChatStore {
   };
 
   @action sendMessage = async (to: User, from: User, text: string) => {
-    //TODO to is sending to myself. Fix types in typescript
     if (!text.length) return;
 
-    const message: IMessage = {from, to, text};
-    this.setMessages([...this.messages, message]);
-    await api.post('messages', {...message, from: from.id, to: to.id});
+    await api.post('messages', {text, from: from.id, to: to.id});
   };
 
   @action sendFile = async (

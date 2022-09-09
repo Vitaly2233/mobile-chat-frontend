@@ -1,13 +1,8 @@
 import {observer} from 'mobx-react-lite';
 import React, {useState} from 'react';
-import {
-  Image,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, TextInput, TouchableOpacity, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {IMessage} from '../models/Message';
 import {User} from '../models/User';
 import {useStore} from '../store';
 import {Themes} from '../themes';
@@ -15,14 +10,10 @@ import Plus from './icons/Plus';
 import SendMessage from './SendMessage';
 
 interface Props {
-  user: User;
-
-  to: number;
+  toUser: User;
 }
 
-const MessageInput = ({user, to}: Props) => {
-  console.log(user.id, to);
-
+const MessageInput = ({toUser}: Props) => {
   const {chatStore, userStore} = useStore();
   const [inputText, setInputText] = useState('');
 
@@ -32,7 +23,14 @@ const MessageInput = ({user, to}: Props) => {
 
   const handleMessageSend = async () => {
     if (userStore.user) {
-      await chatStore.sendMessage(user, userStore.user, inputText);
+      await chatStore.sendMessage(toUser, userStore.user, inputText);
+
+      const message: IMessage = {
+        from: userStore.user,
+        to: toUser,
+        text: inputText,
+      };
+      chatStore.setMessages([...chatStore.messages, message]);
       setInputText('');
     }
   };
@@ -49,8 +47,12 @@ const MessageInput = ({user, to}: Props) => {
   };
 
   const handleImageUpload = async ({fileName, type, uri}: Asset) => {
-    if (fileName && type && uri)
-      await chatStore.sendFile({fileName, type, uri}, user.id, to);
+    if (fileName && type && uri && userStore.user)
+      await chatStore.sendFile(
+        {fileName, type, uri},
+        userStore.user.id,
+        toUser.id,
+      );
   };
 
   return (

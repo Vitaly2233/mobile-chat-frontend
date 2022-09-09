@@ -27,9 +27,10 @@ const Chat = ({route, navigation}: Props) => {
   );
 
   const init = async () => {
-    await chatStore.setUserMessages(id);
     const token = await AsyncStorage.getItem('access_token');
     if (!token) return;
+
+    await chatStore.setUserMessages(id);
 
     socket.current = io('ws://192.168.0.101:3001', {extraHeaders: {token}});
 
@@ -46,11 +47,10 @@ const Chat = ({route, navigation}: Props) => {
     });
   };
 
-  //TODO message input to === user. FIX
   return (
     <View style={styles.container}>
       <MessageList messages={chatStore.messages} user={userStore.user} />
-      <MessageInput to={id} user={route.params} />
+      <MessageInput toUser={route.params} />
     </View>
   );
 };
