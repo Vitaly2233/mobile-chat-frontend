@@ -1,20 +1,35 @@
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import {FileMessage} from '../../models/FileMessage';
 import {IMessage} from '../../models/Message';
 import {Themes} from '../../themes';
 
 interface Props {
-  message: IMessage;
+  message: IMessage & FileMessage;
   isFromMyself?: boolean;
   isLast?: boolean;
 }
 
 const MessageListItem = ({message, isFromMyself, isLast}: Props) => {
+  const [imageSize, setImageSize] = useState<{width: Number; height: Number}>(
+    null,
+  );
+
   const containerAddition: any = {};
   if (isLast) {
     if (isFromMyself) containerAddition.borderBottomRightRadius = 0;
     else containerAddition.borderBottomLeftRadius = 0;
   }
+
+  let isImage = !!message.imageUrl;
+
+  if (isImage && !imageSize) {
+    console.log(message.imageUrl);
+    Image.getSize(message.imageUrl, (width, height) =>
+      setImageSize({width, height}),
+    );
+  }
+
   return isFromMyself ? (
     <View
       style={{
@@ -23,7 +38,14 @@ const MessageListItem = ({message, isFromMyself, isLast}: Props) => {
         ...containerAddition,
       }}>
       <Text style={styles.myselfName}>{message.from.firstName}</Text>
-      <Text style={styles.myselfMessage}>{message.text}</Text>
+      {isImage ? (
+        <Image
+          resizeMode="cover"
+          style={{...styles.imageMessage, height: 300, width: 200}}
+          source={{uri: message.imageUrl}}></Image>
+      ) : (
+        <Text style={styles.myselfMessage}>{message.text}</Text>
+      )}
     </View>
   ) : (
     <View
@@ -56,6 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: Themes.GRAY_COLOR,
     alignSelf: 'flex-start',
   },
+  imageMessage: {borderRadius: 20},
   name: {
     color: Themes.DARK_GRAY_COLOR,
     fontSize: Themes.FONT_SIZE_SMALL,

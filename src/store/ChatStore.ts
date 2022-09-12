@@ -61,7 +61,7 @@ class ChatStore {
 
     formData.append('to', to);
 
-    const res = await api.post('messages/file', formData, {
+    const res = await api.post('messages/image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

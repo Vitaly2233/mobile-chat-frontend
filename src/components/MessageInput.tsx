@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Themes.GRAY_COLOR,
     borderRadius: 70,
-    marginVertical: 16,
+    marginTop: 8,
+    marginBottom: 16,
     paddingHorizontal: 16,
     paddingVertical: 6,
     flexDirection: 'row',
